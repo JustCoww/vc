@@ -117,7 +117,7 @@ slowedreverb(song)
 system(f'ffmpeg -r 1 -loop 1 -y -i "video.png" -i "{song + "-slowed.wav"}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=7680:4320 "videofile-{song}.mkv"')
 
 system(f'mkdir slowed-{song}')
-output_files = [f'{song}-slowed.wav', 'thumb.png', 'video.png', f'videofile-{song}.mkvc']
+output_files = [f'{song}-slowed.wav', 'thumb.png', 'video.png', f'videofile-{song}.mkv']
 if yt_cover == True: output_files.append('cover.png')
 for i in output_files:
     system(f'mv {i} slowed-{song}')
