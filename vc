@@ -23,7 +23,7 @@ def slowedreverb(song):
 
 def vic(cover, song_name, artist_name):
     # Variables
-    folder = expanduser('~') + '.local/share/vc/'
+    folder = expanduser('~') + '/.local/share/vc/'
     text_colors = (255, 255, 255)
     font_folder = folder + 'fonts/'
     W, H = (7680, 317)
@@ -47,7 +47,7 @@ def vic(cover, song_name, artist_name):
     # Song Text
     text_base = PImage.new(mode='RGBA', size=(W, H), color=(255, 0, 0, 0))
     text = PImageDraw.Draw(text_base)
-    font = PImageFont.truetype(str(font_folder + 'Roboto-Bold.ttf'), 279)
+    font = PImageFont.truetype(font_folder + 'Roboto-Bold.ttf', 279)
     w, h = text.textsize(song_name, font=font)
     text.text( ( (W-w)/2, (H-h)/2 ), song_name, fill=text_colors, font=font, align='center')
     text_base.save(folder + 'song.png')
@@ -55,7 +55,7 @@ def vic(cover, song_name, artist_name):
     # Artist Text
     text_base = PImage.new(mode='RGBA', size=(W, H), color=(255, 0, 0, 0))
     text = PImageDraw.Draw(text_base)
-    font = PImageFont.truetype(str(font_folder + 'Roboto-Light.ttf'), 186)
+    font = PImageFont.truetype(font_folder + 'Roboto-Light.ttf', 186)
     w, h = text.textsize(artist_name, font=font)
     text.text( ( (W-w)/2, (H-h)/2 ), artist_name, fill=text_colors, font=font, align='center')
     text_base.save(folder + 'artist.png')
