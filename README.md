@@ -17,3 +17,6 @@ python-soundfile
   ```
   git clone https://github.com/JustCoww/vc ~/.local/share/vc/
   ```
+  ```
+  ln -s ~/.local/share/vc/vc ~/.local/bin/
+  ```
