@@ -18,5 +18,9 @@ python-soundfile
   git clone https://github.com/JustCoww/vc ~/.local/share/vc/
   ```
   ```
+  chmod +x ~/.local/share/vc/vc
+  ```
+  
+  ```
   ln -s ~/.local/share/vc/vc ~/.local/bin/
   ```
