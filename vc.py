@@ -1,0 +1,122 @@
+from os import system
+from wand.image import Image
+from wand.drawing import Drawing
+from PIL import Image as PImage, ImageDraw as PImageDraw, ImageFont as PImageFont
+from os.path import expanduser
+import soundfile as sf
+from pedalboard import Pedalboard, Reverb
+
+def slowedreverb(song):
+    system(f'ffmpeg -i {song + ".wav"} -af "asetrate=44000" {song + "-slowed-temp.wav"}')
+    audio, sample_rate = sf.read(song + '-slowed-temp.wav')
+
+    # Make a Pedalboard object, containing multiple plugins:
+    board = Pedalboard([Reverb(room_size=0.3, damping=0.2, wet_level=0.1, dry_level=0.3)])
+
+    # Run the audio through this pedalboard!
+    effected = board(audio, sample_rate)
+
+    # Write the audio back as a wav file:
+    sf.write(f'./{song}-slowed.wav', effected, sample_rate)
+    system('rm 1up-slowed-temp.wav')
+
+def vic(cover, song_name, artist_name):
+    # Variables
+    folder = expanduser('~') + '.local/share/vc/'
+    text_colors = (255, 255, 255)
+    font_folder = folder + 'fonts/'
+    W, H = (7680, 317)
+
+    # Background
+    bg = cover.clone()
+    bg.level(0.1, 20, gamma = 5)
+    bg.blur(sigma = 6)
+    bg.resize(7680, 4320)
+
+    # Cover
+    cv = cover.clone()
+    cv.resize(2500, 2500)
+
+    # Thumbnail
+    thumb = bg.clone()
+    thumb.composite(cv, gravity='center')
+    thumb.resize(1920, 1080)
+    thumb.save(filename='thumb.png')
+
+    # Song Text
+    text_base = PImage.new(mode='RGBA', size=(W, H), color=(255, 0, 0, 0))
+    text = PImageDraw.Draw(text_base)
+    font = PImageFont.truetype(str(font_folder + 'Roboto-Bold.ttf'), 279)
+    w, h = text.textsize(song_name, font=font)
+    text.text( ( (W-w)/2, (H-h)/2 ), song_name, fill=text_colors, font=font, align='center')
+    text_base.save(folder + 'song.png')
+
+    # Artist Text
+    text_base = PImage.new(mode='RGBA', size=(W, H), color=(255, 0, 0, 0))
+    text = PImageDraw.Draw(text_base)
+    font = PImageFont.truetype(str(font_folder + 'Roboto-Light.ttf'), 186)
+    w, h = text.textsize(artist_name, font=font)
+    text.text( ( (W-w)/2, (H-h)/2 ), artist_name, fill=text_colors, font=font, align='center')
+    text_base.save(folder + 'artist.png')
+
+    # Video image
+    sr = Image(filename = folder + 'slowedreverb.png')
+    video = bg.clone()
+    song = Image(filename = folder + 'song.png')
+    artist = Image(filename = folder + 'artist.png')
+    video.composite(sr, gravity='center')
+    video.composite(cv, left= 2591, top=659)
+    video.composite(song, left= 1, top=3240)
+    video.composite(artist, left= 1, top=3610)
+    video.save(filename='video.png')
+
+yt_cover = False
+
+# Song info
+song = input("What's the song's name? ")
+artist = input("What's the artist's name? ")
+
+# Method
+method = input('What method do you want to use? [URL (1) / File (2)] ')
+
+# URL method
+if method == '1':
+    url = input("What's the song url? ")
+    yt_cover = input("Do you want to download cover art? (Only works in yt music videos) [Yes (1) / No (2)]")
+    if yt_cover == '1':
+        yt_cover = True
+        system(f'ffmpeg -ss "1" -i $(youtube-dl -f "bestvideo[ext=mp4]" -g "{url}") -frames:v 1 -q:v 2 "cover.png"')
+        img = Image(filename='cover.png')
+        imgP='cover.png'
+    else:
+        imgP = input("What's is the location of the cover image file? ")
+        img = Image(filename=imgP)
+        if '.png' not in imgP:
+            img.convert('png')
+
+# File method
+elif method == '2': 
+    imgP = input("What's is the location of the cover image file? ")
+    img = Image(filename=imgP)
+    if '.png' not in imgP:
+        img.convert('png')
+
+else:
+    print('Invalid method')
+
+vic(img, song, artist)
+
+# YTDW
+system(f'youtube-dl -x --audio-format wav --prefer-ffmpeg -o "{song}.%(ext)s" {url}')
+
+# (Slowed + Reverb)
+slowedreverb(song)
+
+# ITV
+system(f'ffmpeg -r 1 -loop 1 -y -i "video.png" -i "{song + "-slowed.wav"}" -c:v libx264 -tune stillimage -c:a copy -shortest -vf scale=7680:4320 "videofile-{song}.mkv"')
+
+system(f'mkdir slowed-{song}')
+output_files = [f'{song}-slowed.wav', 'thumb.png', 'video.png', f'videofile-{song}.mkvc']
+if yt_cover == True: output_files.append('cover.png')
+for i in output_files:
+    system(f'mv {i} slowed-{song}')
