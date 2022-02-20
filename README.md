@@ -4,10 +4,10 @@ Dependencies
 youtube-dl
 ffmpeg
 imagemagick
-python wand
-python pillow
-Python pedalboard
-Python soundfile
+python-wand
+python-pillow
+python-pedalboard
+python-soundfile
   ```
   pip install soundfile pedalboard pillow wand
   ```
