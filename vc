@@ -19,7 +19,7 @@ def slowedreverb(song):
 
     # Write the audio back as a wav file:
     sf.write(f'./{song}-slowed.wav', effected, sample_rate)
-    system('rm 1up-slowed-temp.wav')
+    system(f'rm {song}-slowed-temp.wav')
 
 def vic(cover, song_name, artist_name):
     # Variables
